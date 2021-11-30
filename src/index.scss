@@ -1,0 +1,43 @@
+@import "~antd/dist/antd.css";
+@import "~flexboxgrid/dist/flexboxgrid.min.css";
+
+.ant-layout .logo {
+  float: left;
+  line-height: 64px;
+  color: #fff;
+  margin-right: 1rem;
+}
+
+.ta-r {
+  text-align: right;
+}
+.ta-c {
+  text-align: center;
+}
+
+@for $i from 1 through 16 {
+  .ml-#{$i} {
+    margin-left: (0.25rem * $i);
+  }
+
+  .mt-#{$i} {
+    margin-top: (0.25rem * $i);
+  }
+
+  .mv-#{$i} {
+    margin: (0.25rem * $i) 0;
+  }
+
+  .mh-#{$i} {
+    margin: 0 (0.25rem * $i);
+  }
+}
+
+@keyframes blink {
+  50% {
+    opacity: .25;
+  }
+}
+.blink {
+  animation: blink 2s linear infinite;
+}

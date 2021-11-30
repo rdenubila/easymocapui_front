@@ -1,25 +1,23 @@
-import logo from './logo.svg';
 import './App.css';
+import { BrowserRouter } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
+import HeaderContentFooter from './templates/HeaderContentFooter';
+import CalibrationList from './pages/calibration/CalibrationList';
+import Home from './pages/Home';
+import CalibrationForm from './pages/calibration/CalibrationForm';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    <BrowserRouter>
+      <HeaderContentFooter>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/calibration" exact element={<CalibrationList />} />
+          <Route path="/calibration/new" exact element={<CalibrationForm />} />
+        </Routes>
+      </HeaderContentFooter>
+    </BrowserRouter>
+  )
 }
 
 export default App;

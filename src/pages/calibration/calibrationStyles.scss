@@ -1,0 +1,23 @@
+
+.cameras { 
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+
+    .ant-card {
+        min-width: 350px;
+        max-width: 350px;
+        margin: .25rem;
+        position: relative;
+    }
+}
+
+.recording-bullet {
+    width: 12px;
+    height: 12px;
+    background-color: red;
+    border-radius: 50%;
+    position: absolute;
+    left: 25px;
+    top: 25px;
+}
