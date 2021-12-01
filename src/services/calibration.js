@@ -10,6 +10,10 @@ const listCalibration = async () => {
     return (await get(endpoint)).data;
 }
 
+const getCalibrationById = async (id) => {
+    return (await get(`${endpoint}/${id}`)).data;
+}
+
 const removeCalibration = async (id) => {
     return await remove(endpoint, id);
 }
@@ -17,5 +21,6 @@ const removeCalibration = async (id) => {
 export {
     saveCalibration,
     listCalibration,
+    getCalibrationById,
     removeCalibration
 }

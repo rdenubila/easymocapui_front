@@ -31,6 +31,10 @@
   .mh-#{$i} {
     margin: 0 (0.25rem * $i);
   }
+
+  .pr-#{$i} {
+    padding-right: (0.25rem * $i);
+  }
 }
 
 @keyframes blink {
