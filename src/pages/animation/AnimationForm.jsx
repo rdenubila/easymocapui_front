@@ -1,6 +1,7 @@
 import { DeleteFilled, SaveFilled, VideoCameraFilled } from "@ant-design/icons";
-import { Input, Form, Select, Divider, Empty, Button } from "antd";
+import { Input, Form, Select, Divider, Empty, Button, message } from "antd";
 import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router";
 import VideoRecorder from "../../components/VideoRecorder";
 import { saveAnimation } from "../../services/animation";
 import { getCalibrationById, listCalibration } from "../../services/calibration";
@@ -10,12 +11,13 @@ const { Option } = Select;
 
 export default function AnimationForm(props) {
 
+    const refs = useRef([]);
     const [cameras, setCameras] = useState([]);
     const [calibrationList, setCalibrationList] = useState([]);
-    const refs = useRef([]);
     const [isRecording, setIsRecording] = useState(false);
     const [recorded, setRecorded] = useState(false);
     const [form] = Form.useForm();
+    const navigate = useNavigate();
 
     const handleFormChange = async (changed, all) => {
         if (changed.calibration) {
@@ -58,14 +60,16 @@ export default function AnimationForm(props) {
     }
 
     const sendForm = async (values) => {
-        console.log(values);
-
         if (!values.calibration)
             return;
 
         const savedData = await saveAnimation(values);
 
         refs.current.forEach(async (cam, index) => await VideoService.saveVideoToServer(`animation/${savedData.folder}/videos`, index, cam.getData()));
+
+        message.success("Animation successfully saved");
+
+        navigate(`/animation/${savedData.id}`)
     }
 
     const canRecordAnimation = () => cameras.length > 0;
@@ -84,12 +88,19 @@ export default function AnimationForm(props) {
                     onFinish={sendForm}
                     initialValues={{
                         calibration: '',
-                        name: ''
+                        name: '',
+                        persons: 'single'
                     }}
                 >
                     <Divider orientation="left">Recording</Divider>
 
-                    <Form.Item name="calibration" label="Calibration">
+                    <Form.Item
+                        name="calibration"
+                        label="Calibration"
+                        rules={[
+                            { required: true, message: 'Please select the calibration' }
+                        ]}
+                    >
                         <Select>
                             <Option value="">Select</Option>
                             {calibrationList.map(c => <Option key={c._id} value={c._id}>{c.name}</Option>)}
@@ -111,6 +122,19 @@ export default function AnimationForm(props) {
                         ]}
                     >
                         <Input />
+                    </Form.Item>
+
+                    <Form.Item
+                        name="persons"
+                        label="Persons in scene"
+                        rules={[
+                            { required: true, message: 'Please select the count of persons in scene!' }
+                        ]}
+                    >
+                        <Select>
+                            <Option value="single">Single person</Option>
+                            <Option value="multiple">Multiple persons</Option>
+                        </Select>
                     </Form.Item>
 
                     <Form.Item name="description" label="Description">

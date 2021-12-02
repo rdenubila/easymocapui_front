@@ -26,7 +26,7 @@ function AnimationList(props) {
             title: 'Name',
             dataIndex: 'name',
             key: 'name',
-            render: text => <a>{text}</a>,
+            render: (text, el) => <Link to={`/animation/${el._id}`}>{text}</Link>,
         },
         {
             title: 'Actions',

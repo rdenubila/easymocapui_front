@@ -1,13 +1,20 @@
-import { get, post, remove } from "./apiRequest";
+import { get, post, put, remove } from "./apiRequest";
 
 const endpoint = 'animation';
 
-const saveAnimation = async (data) => {
-    return (await post(endpoint, data)).data;
+const saveAnimation = async (data, id) => {
+    if (id)
+        return (await put(`${endpoint}/${id}`, data)).data;
+    else
+        return (await post(endpoint, data)).data;
 }
 
 const listAnimation = async () => {
     return (await get(endpoint)).data;
+}
+
+const getAnimationDetail = async (id) => {
+    return (await get(`${endpoint}/${id}`)).data;
 }
 
 const removeAnimation = async (id) => {
@@ -17,5 +24,6 @@ const removeAnimation = async (id) => {
 export {
     saveAnimation,
     listAnimation,
-    removeAnimation
+    removeAnimation,
+    getAnimationDetail
 }

@@ -7,6 +7,7 @@ import Home from './pages/Home';
 import CalibrationForm from './pages/calibration/CalibrationForm';
 import AnimationList from './pages/animation/AnimationList';
 import AnimationForm from './pages/animation/AnimationForm';
+import AnimationDetail from './pages/animation/AnimationDetail';
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
           <Route path="/calibration/new" exact element={<CalibrationForm />} />
           <Route path="/animations" exact element={<AnimationList />} />
           <Route path="/animation/new" exact element={<AnimationForm />} />
+          <Route path="/animation/:id" exact element={<AnimationDetail />} />
         </Routes>
       </HeaderContentFooter>
     </BrowserRouter>

@@ -26,6 +26,19 @@ const post = async (endpoint, data, config = {}) => {
     }
 }
 
+const put = async (endpoint, data, config = {}) => {
+    try {
+        const response = await axios.put(
+            `${baseUrl}${endpoint}`,
+            data,
+            config
+        );
+        return response.data;
+    } catch (e) {
+        throw e;
+    }
+}
+
 const remove = async (endpoint, id) => {
     try {
         await axios.delete(`${baseUrl}${endpoint}/${id}`);
@@ -36,6 +49,7 @@ const remove = async (endpoint, id) => {
 
 export {
     post,
+    put,
     get,
     remove
 }
