@@ -1,4 +1,4 @@
-import { DeleteFilled, PlayCircleFilled, StopFilled, VideoCameraFilled } from "@ant-design/icons";
+import { DeleteFilled, PlayCircleFilled, RotateRightOutlined, StopFilled, VideoCameraFilled } from "@ant-design/icons";
 import { Card, Dropdown, Menu } from "antd";
 import React, { useEffect, useImperativeHandle, useRef, useState } from "react";
 import VideoService from "../services/video";
@@ -95,6 +95,11 @@ const VideoRecorder = React.forwardRef((props, ref) => {
                 <VideoCameraFilled key="selectCam" />
             </Dropdown>)
 
+        if (props.onRotate)
+            list.push(<Dropdown overlay={rotateMenu()} placement="bottomLeft" arrow>
+                <RotateRightOutlined key="rotateCam" />
+            </Dropdown>)
+
         return list;
     }
 
@@ -109,12 +114,26 @@ const VideoRecorder = React.forwardRef((props, ref) => {
         </Menu>
     );
 
+    const rotateMenu = () => {
+        const options = [-90, 0, 90, 180]
+        return <Menu>
+            {options.map(rotation => (
+                <Menu.Item key={'rot-' + rotation} onClick={() => props.onRotate(index, rotation)} >
+                    {rotation}
+                </Menu.Item>
+            ))
+            }
+        </Menu>
+    };
+
     return (<>
         <Card
             size="small"
             actions={actions()}
         >
-            <video ref={videoRef} width="100%" style={{ aspectRatio: "16/9" }} controls />
+            <div className={`cam-rotation cam-rotation-${props.rotation}`}>
+                <video ref={videoRef} width="100%" controls />
+            </div>
             {isRecording ? <div className="recording-bullet blink"></div> : null}
         </Card>
     </>);

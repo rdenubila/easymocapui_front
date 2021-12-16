@@ -23,7 +23,10 @@ export default function CalibrationForm(props) {
     }
 
     const addCamera = () => {
-        setCameras([...cameras, null]);
+        setCameras([...cameras, {
+            id: null,
+            rotation: 0
+        }]);
     }
 
     const removeCamera = (i) => {
@@ -32,7 +35,13 @@ export default function CalibrationForm(props) {
 
     const changeCameraId = (index, id) => {
         const cams = [...cameras];
-        cams[index] = id;
+        cams[index].id = id;
+        setCameras(cams);
+    }
+
+    const changeCameraRotation = (index, rotation) => {
+        const cams = [...cameras];
+        cams[index].rotation = rotation;
         setCameras(cams);
     }
 
@@ -69,8 +78,8 @@ export default function CalibrationForm(props) {
             name,
             cameras
         });
-        intrinsicData.forEach(async (blob, index) => await VideoService.saveVideoToServer(`calibration/${savedData.folder}/intri`, index, blob));
-        extrinsicData.forEach(async (blob, index) => await VideoService.saveVideoToServer(`calibration/${savedData.folder}/extri`, index, blob));
+        intrinsicData.forEach(async (blob, index) => await VideoService.saveVideoToServer(`calibration/${savedData.folder}/intri`, index, blob, cameras[index]));
+        extrinsicData.forEach(async (blob, index) => await VideoService.saveVideoToServer(`calibration/${savedData.folder}/extri`, index, blob, cameras[index]));
     }
 
     const actionButtons = () => {
@@ -104,7 +113,8 @@ export default function CalibrationForm(props) {
             case 0:
                 return {
                     onRemove: removeCamera,
-                    onSelect: changeCameraId
+                    onSelect: changeCameraId,
+                    onRotate: changeCameraRotation,
                 }
             case 1:
             case 2:
@@ -169,11 +179,12 @@ export default function CalibrationForm(props) {
 
         <div style={{ display: isLastStep() ? "none" : "block" }}>
             {cameras.length ?
-                <div className="cameras">{cameras.map((id, i) => <VideoRecorder
+                <div className="cameras">{cameras.map((cam, i) => <VideoRecorder
                     key={`camera-${i}`}
                     index={i}
                     ref={el => (refs.current[i] = el)}
-                    cameraId={id}
+                    cameraId={cam.id}
+                    rotation={cam.rotation}
                     {...cameraActionParams()}
                 />)}</div>
                 : <Empty className="mv-16" description="No camera. Click 'Add Camera' above to add cameras to calibration" />

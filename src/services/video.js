@@ -88,11 +88,12 @@ export default class VideoService {
         await this.updateDevice();
     }
 
-    static saveVideoToServer = async (dir, camId, blob) => {
+    static saveVideoToServer = async (dir, camId, blob, cameraData) => {
         const recordedBlob = new Blob(blob, { type: "video/mp4" });
         const data = {
             dir,
             camId,
+            rotation: cameraData.rotation,
             video: await VideoService.blobToBase64(recordedBlob)
         }
         return await post(`video/save`, data);

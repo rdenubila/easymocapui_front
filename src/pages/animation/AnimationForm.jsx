@@ -65,7 +65,9 @@ export default function AnimationForm(props) {
 
         const savedData = await saveAnimation(values);
 
-        refs.current.forEach(async (cam, index) => await VideoService.saveVideoToServer(`animation/${savedData.folder}/videos`, index, cam.getData()));
+        refs.current.forEach(async (cam, index) =>
+            await VideoService.saveVideoToServer(`animation/${savedData.folder}/videos`, index, cam.getData(), cameras[index])
+        );
 
         message.success("Animation successfully saved");
 
@@ -151,11 +153,12 @@ export default function AnimationForm(props) {
                 <Divider orientation="left">Cameras</Divider>
 
                 {cameras.length ?
-                    <div className="cameras">{cameras.map((id, i) => <VideoRecorder
+                    <div className="cameras">{cameras.map((cam, i) => <VideoRecorder
                         key={`camera-${i}`}
                         index={i}
                         ref={el => (refs.current[i] = el)}
-                        cameraId={id}
+                        cameraId={cam.id}
+                        rotation={cam.rotation}
                     />)}</div>
                     : <Empty className="mv-16" description="No camera. Click 'Add Camera' above to add cameras to calibration" />
                 }

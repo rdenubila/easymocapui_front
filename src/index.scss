@@ -39,9 +39,57 @@
 
 @keyframes blink {
   50% {
-    opacity: .25;
+    opacity: 0.25;
   }
 }
 .blink {
   animation: blink 2s linear infinite;
+}
+
+.cam-rotation {
+  $w: 350px;
+  $h: 175px;
+
+  width: $w;
+  height: $h;
+  position: relative;
+
+  video {
+    width: $w;
+    height: $h;
+    aspect-ratio: "16/9";
+    transform-origin: top left;
+  }
+
+  &.cam-rotation-0 {
+  }
+
+  &.cam-rotation-90 {
+    width: $h;
+    height: $w;
+    left: $h;
+
+    video {
+      position: absolute;
+      transform: rotate(90deg);
+    }
+  }
+
+  &.cam-rotation--90 {
+    width: $h;
+    height: $w;
+    top: $w;
+    
+    video {
+      position: absolute;
+      transform: rotate(-90deg);
+    }
+  }
+
+  &.cam-rotation-180 {
+    video {
+      transform: rotate(180deg);
+      transform-origin: center center;
+    }
+  }
 }
