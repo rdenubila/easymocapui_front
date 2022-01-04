@@ -66,7 +66,7 @@ export default function AnimationForm(props) {
         const savedData = await saveAnimation(values);
 
         refs.current.forEach(async (cam, index) =>
-            await VideoService.saveVideoToServer(`animation/${savedData.folder}/videos`, index, cam.getData(), cameras[index])
+            await VideoService.saveVideoToServer(`animation/${savedData.folder}`, index, cam.getData(), cameras[index])
         );
 
         message.success("Animation successfully saved");
