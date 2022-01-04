@@ -1,5 +1,13 @@
 import { post } from "./apiRequest";
 
+const hdConstraints = {
+    width: { min: 1280 }, height: { min: 720 },
+};
+
+const fullhdConstraints = {
+    width: { min: 1920 }, height: { min: 1080 },
+};
+
 export default class VideoService {
 
     _video;
@@ -31,7 +39,10 @@ export default class VideoService {
         try {
             return navigator.mediaDevices.getUserMedia({
                 video: {
-                    deviceId: { exact: this._cameraId }
+                    ...{
+                        deviceId: { exact: this._cameraId }
+                    },
+                    ...fullhdConstraints
                 }
             })
         } catch (e) {
