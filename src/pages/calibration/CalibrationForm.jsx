@@ -23,10 +23,17 @@ export default function CalibrationForm(props) {
     }
 
     const addCamera = () => {
+        requestCamera();
         setCameras([...cameras, {
             id: null,
             rotation: 0
         }]);
+    }
+
+    const requestCamera = () => {
+        navigator.mediaDevices.getUserMedia({
+            video: true
+        })
     }
 
     const removeCamera = (i) => {
