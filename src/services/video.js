@@ -5,7 +5,7 @@ const hdConstraints = {
 };
 
 const fullhdConstraints = {
-    width: { min: 1920 }, height: { min: 1080 },
+    width: 1920, height: 1080
 };
 
 export default class VideoService {
@@ -35,14 +35,24 @@ export default class VideoService {
         }
     }
 
+    get stream() {
+        return this._stream
+    }
+
+    get blob() {
+        return this._data
+    }
+
     getUserMediaById = async () => {
+        let supportedConstraints = navigator.mediaDevices.getSupportedConstraints();
+        console.log(supportedConstraints);
         try {
             return navigator.mediaDevices.getUserMedia({
                 video: {
-                    ...{
-                        deviceId: { exact: this._cameraId }
-                    },
-                    ...fullhdConstraints
+                    deviceId: { exact: this._cameraId },
+                    width: { min: 1280, ideal: 4096 },
+                    height: { min: 720, ideal: 2160 },
+                    aspectRatio: 1.777777778,
                 }
             })
         } catch (e) {
@@ -68,6 +78,11 @@ export default class VideoService {
     }
 
     startRecording() {
+        if (!this._stream) {
+            console.error("NO STREAM", this._stream);
+            return;
+        }
+
         this._recorder = new MediaRecorder(this._stream);
         this._data = [];
 
@@ -86,7 +101,6 @@ export default class VideoService {
 
     recordingEnded() {
         const recordedBlob = new Blob(this._data, { type: "video/mp4" });
-        console.log(URL.createObjectURL(recordedBlob));
         this._video.srcObject = null;
         this._video.src = URL.createObjectURL(recordedBlob);
         this._video.loop = true;
@@ -100,11 +114,12 @@ export default class VideoService {
     }
 
     static saveVideoToServer = async (dir, camId, blob, cameraData) => {
+        console.log(cameraData);
         const recordedBlob = new Blob(blob, { type: "video/mp4" });
         const data = {
             dir,
             camId,
-            rotation: cameraData.rotation,
+            rotation: cameraData?.rotation,
             video: await VideoService.blobToBase64(recordedBlob)
         }
         return await post(`video/save`, data);

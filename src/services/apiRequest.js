@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const baseUrl = process.env.REACT_APP_API_URL;
+const baseUrl = process.env.REACT_APP_API_URL.replace("{host}", window.location.hostname);
 
 var queryStringConverter = (params) => params ? '?' + Object.keys(params).map(key => key + '=' + params[key]).join('&') : '';
 
@@ -51,5 +51,6 @@ export {
     post,
     put,
     get,
-    remove
+    remove,
+    baseUrl
 }

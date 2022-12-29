@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { listCalibration, removeCalibration } from '../../services/calibration';
 import { DeleteFilled } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
+import HeaderNavContent from '../../templates/HeaderNavContent';
 
 function CalibrationList(props) {
     const [data, setData] = useState();
@@ -26,7 +27,7 @@ function CalibrationList(props) {
             title: 'Name',
             dataIndex: 'name',
             key: 'name',
-            render: text => <a>{text}</a>,
+            render: (text, element) => <Link to={`/calibration/${element._id}`}>{text}</Link>,
         },
         {
             title: 'Actions',
@@ -46,17 +47,9 @@ function CalibrationList(props) {
         }
     ]
 
-    return (<>
-        <div className="row">
-            <div className="col-xs">
-                <h1>Camera Calibration</h1>
-            </div>
-            <div className="col-xs ta-r">
-                <Link to="/calibration/new"><Button type="primary">New Calibration</Button></Link>
-            </div>
-        </div>
+    return (<HeaderNavContent title="Camera Calibration" buttons={[<Link to="/calibration/new"><Button type="primary">New Calibration</Button></Link>]}>
         <Table columns={columns} dataSource={data} />
-    </>);
+    </HeaderNavContent>);
 }
 
 export default CalibrationList;

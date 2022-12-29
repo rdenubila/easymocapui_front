@@ -1,8 +1,9 @@
 import { Button, Popconfirm, Table } from 'antd';
 import { useEffect, useState } from 'react';
-import { DeleteFilled } from '@ant-design/icons';
+import { DeleteFilled, EditFilled } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import { listAnimation, removeAnimation } from '../../services/animation';
+import HeaderNavContent from '../../templates/HeaderNavContent';
 
 function AnimationList(props) {
     const [data, setData] = useState();
@@ -41,22 +42,19 @@ function AnimationList(props) {
                     <a href="#">
                         <DeleteFilled />
                     </a>
-                </Popconfirm>
+                </Popconfirm>,
+                <Link className="ml-2" to={`/animation/${element._id}/edit`}>
+                    <EditFilled />
+                </Link>
             ]),
         }
     ]
 
-    return (<>
-        <div className="row">
-            <div className="col-xs">
-                <h1>Animations</h1>
-            </div>
-            <div className="col-xs ta-r">
-                <Link to="/animation/new"><Button type="primary">New Animation</Button></Link>
-            </div>
-        </div>
-        <Table columns={columns} dataSource={data} />
-    </>);
+    return (
+        <HeaderNavContent title="Animation" buttons={[<Link to="/animation/new"><Button type="primary">New Animation</Button></Link>]}>
+            <Table columns={columns} dataSource={data} />
+        </HeaderNavContent>
+    );
 }
 
 export default AnimationList;

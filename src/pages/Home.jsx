@@ -1,9 +1,12 @@
 import { Empty } from "antd";
+import HeaderNavContent from "../templates/HeaderNavContent";
 
 function Home(props) {
 
     return (
-        <Empty />
+        <HeaderNavContent title="Home">
+            <Empty />
+        </HeaderNavContent>
     );
 }
 

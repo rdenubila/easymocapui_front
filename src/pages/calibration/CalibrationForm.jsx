@@ -1,216 +1,144 @@
-import { CameraFilled, LeftCircleFilled, PlayCircleOutlined, RightCircleFilled, SaveFilled, StopFilled, VideoCameraAddOutlined, VideoCameraFilled } from "@ant-design/icons";
-import { Button, Empty, Input, Steps } from "antd";
-import { useRef, useState } from "react";
-import VideoRecorder from "../../components/VideoRecorder";
-import { saveCalibration } from "../../services/calibration";
-import VideoService from "../../services/video";
+import { useEffect, useState, useContext } from 'react';
+import { Form, Input, Button, Select, Badge, Space, message } from 'antd';
+import HeaderNavContent from "../../templates/HeaderNavContent";
 import './calibrationStyles.scss';
+import { listDevice } from '../../services/device';
+import { GlobalStateContext } from '../../wrappers/GlobalContext';
+import VideoService from '../../services/video';
+import { saveCalibration } from '../../services/calibration';
+import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
+import { useNavigate } from 'react-router-dom';
 
-const { Step } = Steps;
+export default function CalibrationForm() {
+    const { peers } = useContext(GlobalStateContext);
+    const videoService = new VideoService();
+    const [devices, setDevices] = useState([]);
+    const [connectedDevices, setConnectedDevices] = useState([]);
+    const navigate = useNavigate();
 
-export default function CalibrationForm(props) {
-
-    const refs = useRef([]);
-    const [step, setStep] = useState(0);
-    const [cameras, setCameras] = useState([]);
-    const [intrinsicData, setIntrinsicData] = useState([]);
-    const [extrinsicData, setExtrinsicData] = useState([]);
-    const [isRecording, setIsRecording] = useState(false);
-    const [name, setName] = useState("");
-
-    const handleName = (event) => {
-        setName(event.target.value);
+    const getDevices = async () => {
+        const _devices = await listDevice();
+        setDevices(_devices);
+    }
+    const getConnectedDevices = async () => {
+        const _devices = await videoService.getDevices();
+        setConnectedDevices(_devices);
     }
 
-    const addCamera = () => {
-        requestCamera();
-        setCameras([...cameras, {
-            id: null,
-            rotation: 0
-        }]);
+    const isConnected = (device) => {
+        return connectedDevices.some(d => device.deviceId === d.deviceId)
+            || peers.some(d => device.deviceId === d.metadata.deviceId);
     }
 
-    const requestCamera = () => {
-        navigator.mediaDevices.getUserMedia({
-            video: true
-        })
-    }
+    useEffect(() => {
+        getDevices();
+        getConnectedDevices();
+    }, []);
 
-    const removeCamera = (i) => {
-        setCameras(cameras.filter((v, index) => i !== index));
-    }
+    const initialValues = {
+        name: "",
+        description: "",
+        cameras: [],
+        grid: "0.15",
+        pattern: "9,6"
+    };
 
-    const changeCameraId = (index, id) => {
-        const cams = [...cameras];
-        cams[index].id = id;
-        setCameras(cams);
-    }
+    const onFinish = async (values) => {
+        try {
+            const newCalibration = await saveCalibration(values);
+            message.success('Calibration created!');
+            console.log(newCalibration);
+            navigate('/calibration/' + newCalibration.id);
 
-    const changeCameraRotation = (index, rotation) => {
-        const cams = [...cameras];
-        cams[index].rotation = rotation;
-        setCameras(cams);
-    }
-
-    const recordVideos = () => {
-        for (const cam of refs.current) {
-            if (!isRecording) {
-                setIsRecording(true);
-                cam.startRecording();
-            } else {
-                setIsRecording(false);
-                cam.stopRecording();
-            }
-        };
-    }
-
-    const getIntrinsicData = () => {
-        const data = refs.current.map(item => item.getData());
-        setIntrinsicData(data);
-    }
-
-    const getExtrinsicData = () => {
-        const data = refs.current.map(item => item.getData());
-        setExtrinsicData(data);
-    }
-
-    const resetCameras = () => {
-        refs.current.forEach(element => {
-            element.discardRecording();
-        });
-    }
-
-    const save = async () => {
-        const savedData = await saveCalibration({
-            name,
-            cameras
-        });
-        intrinsicData.forEach(async (blob, index) => await VideoService.saveVideoToServer(`calibration/${savedData.folder}/intri`, index, blob, cameras[index]));
-        extrinsicData.forEach(async (blob, index) => await VideoService.saveVideoToServer(`calibration/${savedData.folder}/extri`, index, blob, cameras[index]));
-    }
-
-    const actionButtons = () => {
-        switch (step) {
-            case 0:
-                return <Button onClick={addCamera} type="primary"><VideoCameraAddOutlined /> Add Camera</Button>
-            case 1:
-                return <Button onClick={() => recordVideos()} className="ml-1" type="primary" danger>{
-                    !isRecording ? <><PlayCircleOutlined /> Record Intrinsic</> : <><StopFilled /> Stop Recording</>
-                }</Button>
-            case 2:
-                return <Button onClick={() => recordVideos()} className="ml-1" type="primary" danger>{
-                    !isRecording ? <><PlayCircleOutlined /> Record Extrinsic</> : <><StopFilled /> Stop Recording</>
-                }</Button>
-            default:
-                return null;
+        } catch (e) {
+            console.error(e);
         }
-    }
+    };
 
-    const stepValidation = () => {
-        switch (step) {
-            case 0:
-                return cameras.length > 0;
-            default:
-                return true;
-        }
-    }
+    return (<HeaderNavContent title="Camera Calibration" subtitle="New">
 
-    const cameraActionParams = () => {
-        switch (step) {
-            case 0:
-                return {
-                    onRemove: removeCamera,
-                    onSelect: changeCameraId,
-                    onRotate: changeCameraRotation,
-                }
-            case 1:
-            case 2:
-                return {
-                    onRecordEach: recordVideos
-                }
-            default:
-                return [];
-        }
-    }
+        <Form
+            layout="vertical"
+            initialValues={initialValues}
+            onFinish={onFinish}
+        //onFinishFailed={onFinishFailed}
+        >
+            <Form.Item
+                label="Name"
+                name="name"
+                rules={[{ required: true, message: 'Please input the calibration name!' }]}
+            >
+                <Input />
+            </Form.Item>
 
-    const nextStep = () => {
-        if (stepValidation()) {
+            <Form.Item
+                label="Description"
+                name="description"
+            >
+                <Input />
+            </Form.Item>
 
-            switch (step) {
-                case 1:
-                    getIntrinsicData();
-                    resetCameras();
-                    break;
-                case 2:
-                    getExtrinsicData();
-                    resetCameras();
-                    break;
-                default:
-                    break;
-            }
+            <Form.List
+                label="Cameras"
+                name="cameras"
+            >
+                {(fields, { add, remove }) => (<>
+                    {fields.map(({ key, name, ...restField }) => (
+                        <Space key={key} style={{ display: 'flex' }} align="baseline">
+                            <Form.Item
+                                {...restField}
+                                name={[name, "deviceId"]}
+                                className='w-96'>
+                                <Select placeholder="Select camera" >
+                                    {devices?.map(device => <Select.Option key={device._id} value={device.deviceId}>
+                                        <Badge color={isConnected(device) ? "green" : "red"} text={device.name} /> <small>({device.type})</small>
+                                    </Select.Option>)}
+                                </Select>
+                            </Form.Item>
+                            <Form.Item
+                                {...restField}
+                                name={[name, "rotation"]}
+                            >
+                                <Select placeholder="Select rotation" >
+                                    <Select.Option value="0">0</Select.Option>
+                                    <Select.Option value="90">90</Select.Option>
+                                    <Select.Option value="180">180</Select.Option>
+                                    <Select.Option value="-90">-90</Select.Option>
+                                </Select>
+                            </Form.Item>
+                            <MinusCircleOutlined onClick={() => remove(name)} />
+                        </Space>
+                    ))}
+                    <Form.Item>
+                        <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
+                            Add camera
+                        </Button>
+                    </Form.Item>
+                </>)}
+            </Form.List>
 
-            setStep(step + 1);
-        }
-    }
+            <Form.Item
+                label="Grid"
+                name="grid"
+                rules={[{ required: true }]}
+            >
+                <Input />
+            </Form.Item>
 
-    const prevStep = () => {
-        setStep(step - 1);
-    }
+            <Form.Item
+                label="Pattern"
+                name="pattern"
+                rules={[{ required: true }]}
+            >
+                <Input />
+            </Form.Item>
 
-    const isLastStep = () => step >= 3;
+            <Form.Item>
+                <Button type="primary" htmlType="submit">
+                    Save
+                </Button>
+            </Form.Item>
+        </Form>
 
-    return (<>
-        <h1>New Camera Calibration</h1>
-        <Steps size="small" current={step} >
-            <Step title="Select Cameras" />
-            <Step title="Record Intrinsic" />
-            <Step title="Record Extrinsic" />
-            <Step title="Finish" />
-        </Steps>
-
-        <div className="row mv-4">
-            <div className="col-xs">
-                {step > 0 ? <Button onClick={prevStep} className="ml-1" type="dashed"><LeftCircleFilled /> Prev</Button> : null}
-            </div>
-            <div className="col-xs ta-c">
-                {actionButtons()}
-            </div>
-            <div className="col-xs ta-r">
-                {
-                    !isLastStep()
-                        ? <Button onClick={nextStep} className="ml-1" type="primary"><RightCircleFilled /> Next</Button>
-                        : <Button onClick={save} className="ml-1" type="primary"><SaveFilled /> Save</Button>
-                }
-            </div>
-        </div>
-
-        <div style={{ display: isLastStep() ? "none" : "block" }}>
-            {cameras.length ?
-                <div className="cameras">{cameras.map((cam, i) => <VideoRecorder
-                    key={`camera-${i}`}
-                    index={i}
-                    ref={el => (refs.current[i] = el)}
-                    cameraId={cam.id}
-                    rotation={cam.rotation}
-                    {...cameraActionParams()}
-                />)}</div>
-                : <Empty className="mv-16" description="No camera. Click 'Add Camera' above to add cameras to calibration" />
-            }
-        </div>
-
-        <div style={{ display: !isLastStep() ? "none" : "block" }}>
-            <div className="row center-xs">
-                <div className="col-md-6">
-                    <Input
-                        size="large"
-                        placeholder="Input the Camera Calibration Name"
-                        prefix={<VideoCameraFilled />}
-                        value={name}
-                        onChange={handleName}
-                    />
-                </div>
-            </div>
-        </div>
-
-    </>);
+    </HeaderNavContent>);
 }

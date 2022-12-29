@@ -6,6 +6,18 @@ const saveCalibration = async (data) => {
     return (await post(endpoint, data)).data;
 }
 
+const extractCalibrationVideo = async (id) => {
+    return (await post(`${endpoint}/${id}/extract`)).data;
+}
+
+const detectChessboard = async (id) => {
+    return (await post(`${endpoint}/${id}/chessboard`)).data;
+}
+
+const calibrate = async (id) => {
+    return (await post(`${endpoint}/${id}/calibrate`)).data;
+}
+
 const listCalibration = async () => {
     return (await get(endpoint)).data;
 }
@@ -22,5 +34,8 @@ export {
     saveCalibration,
     listCalibration,
     getCalibrationById,
-    removeCalibration
+    removeCalibration,
+    extractCalibrationVideo,
+    calibrate,
+    detectChessboard
 }
