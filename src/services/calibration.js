@@ -18,6 +18,16 @@ const calibrate = async (id) => {
     return (await post(`${endpoint}/${id}/calibrate`)).data;
 }
 
+const listCalibrationImages = async (id) => {
+    return (await get(`${endpoint}/${id}/images`)).data;
+}
+
+const setCalibrationImage = async (id, type, folder, cam, image) => {
+    return (await post(`${endpoint}/${id}/images`, {
+        type, folder, cam, image
+    })).data;
+}
+
 const listCalibration = async () => {
     return (await get(endpoint)).data;
 }
@@ -36,6 +46,8 @@ export {
     getCalibrationById,
     removeCalibration,
     extractCalibrationVideo,
+    listCalibrationImages,
+    setCalibrationImage,
     calibrate,
     detectChessboard
 }

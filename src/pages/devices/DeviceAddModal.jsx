@@ -27,7 +27,6 @@ function DeviceAddModal({ isModalVisible, setIsModalVisible }) {
         setAvailableStreamingDevices(devices);
     }
 
-
     const showVideoPreview = () => {
         if (!selectedDevice) return;
 
@@ -52,16 +51,36 @@ function DeviceAddModal({ isModalVisible, setIsModalVisible }) {
         showVideoPreview();
     }, [selectedDevice])
 
+    useEffect(() => {
+        if (typeof isModalVisible == "boolean") {
+            setDeviceName("");
+            setSelectedDevice(null);
+        } else {
+            setDeviceName(isModalVisible.name);
+            setSelectedDevice({
+                type: isModalVisible.type,
+                label: isModalVisible.label,
+                deviceId: isModalVisible.deviceId
+            });
+        }
+    }, [isModalVisible])
+
     const handleOk = async () => {
         if (!selectedDevice || !deviceName) {
             alert("Fill all fields before add a device");
             return;
         }
 
-        await saveDevice({
+        const data = {
             ...selectedDevice,
             ...{ name: deviceName }
-        })
+        }
+
+        if (typeof isModalVisible == "boolean") {
+            await saveDevice(data)
+        } else {
+            await saveDevice(data, isModalVisible._id)
+        }
 
         eventService.dispatch();
 
@@ -76,40 +95,42 @@ function DeviceAddModal({ isModalVisible, setIsModalVisible }) {
         setSelectedDevice(JSON.parse(ev));
     }
 
-    return (<Modal title="Add Device" visible={isModalVisible} onOk={handleOk} onCancel={handleCancel}>
-        <Form.Item label="Select a device">
-            <Select onChange={onSelectDevice}>
+    return (<Modal title="Add Device" visible={Boolean(isModalVisible)} onOk={handleOk} onCancel={handleCancel}>
+        <div>
+            <Form.Item label="Select a device">
+                <Select value={selectedDevice ? JSON.stringify(selectedDevice) : ""} onChange={onSelectDevice}>
 
-                <OptGroup label="Local">
-                    {availableDevices?.map(device => <Option
-                        key={device.deviceId}
-                        value={JSON.stringify({
-                            type: "local",
-                            label: device.label,
-                            deviceId: device.deviceId
-                        })}>{device.label}</Option>)}
-                    {availableDevices.length === 0 ? <option disabled>- No local device available -</option> : null}
-                </OptGroup>
+                    <OptGroup label="Local">
+                        {availableDevices?.map(device => <Option
+                            key={device.deviceId}
+                            value={JSON.stringify({
+                                type: "local",
+                                label: device.label,
+                                deviceId: device.deviceId
+                            })}>{device.label}</Option>)}
+                        {availableDevices.length === 0 ? <option disabled>- No local device available -</option> : null}
+                    </OptGroup>
 
-                <OptGroup label="Streaming">
-                    {availableStreamingDevices?.map(device => <Option
-                        key={device.deviceId}
-                        value={JSON.stringify({
-                            type: "streaming",
-                            label: device.label,
-                            deviceId: device.deviceId
-                        })}>{device.label}</Option>)}
-                    {availableStreamingDevices.length === 0 ? <option disabled>- No streaming device available -</option> : null}
-                </OptGroup>
+                    <OptGroup label="Streaming">
+                        {availableStreamingDevices?.map(device => <Option
+                            key={device.deviceId}
+                            value={JSON.stringify({
+                                type: "streaming",
+                                label: device.label,
+                                deviceId: device.deviceId
+                            })}>{device.label}</Option>)}
+                        {availableStreamingDevices.length === 0 ? <option disabled>- No streaming device available -</option> : null}
+                    </OptGroup>
 
-            </Select>
-        </Form.Item>
-        <Form.Item label="Device name">
-            <Input value={deviceName} onChange={(ev) => setDeviceName(ev.target.value)} />
-        </Form.Item>
+                </Select>
+            </Form.Item>
+            <Form.Item label="Device name">
+                <Input value={deviceName} onChange={(ev) => setDeviceName(ev.target.value)} />
+            </Form.Item>
 
-        <div className={selectedDevice && selectedDevice.type === "local" ? '' : 'hidden'}>
-            <video ref={videoRef} width="100%" style={{ aspectRatio: "16/9" }} controls />
+            <div className={selectedDevice && selectedDevice.type === "local" ? '' : 'hidden'}>
+                <video ref={videoRef} width="100%" style={{ aspectRatio: "16/9" }} controls />
+            </div>
         </div>
     </Modal >);
 }

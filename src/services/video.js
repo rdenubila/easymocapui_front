@@ -114,7 +114,6 @@ export default class VideoService {
     }
 
     static saveVideoToServer = async (dir, camId, blob, cameraData) => {
-        console.log(cameraData);
         const recordedBlob = new Blob(blob, { type: "video/mp4" });
         const data = {
             dir,

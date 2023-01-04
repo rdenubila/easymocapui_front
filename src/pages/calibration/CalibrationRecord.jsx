@@ -1,4 +1,4 @@
-import { Button, Modal, Result } from 'antd';
+import { Button, InputNumber, Modal, Result } from 'antd';
 import { useEffect, useState, useContext } from 'react';
 import CameraView from '../../components/CameraView';
 import { listDevice } from '../../services/device';
@@ -9,6 +9,11 @@ function CalibrationRecord({ cameras, folder, type, status }) {
     const [devices, setDevices] = useState([]);
     const [isRecording, setIsRecording] = useState(false);
     const [showHelp, setShowHelp] = useState(false);
+
+    const [startDelay, setStartDelay] = useState(0);
+    const [endDelay, setEndDelay] = useState(0);
+    const [hasTimer, setHasTimer] = useState(0)
+
     const eventsService = new EventsService('videoRecording');
 
     const getDevices = async () => {
@@ -25,9 +30,39 @@ function CalibrationRecord({ cameras, folder, type, status }) {
     const cameraOptions = (cam) => cameras.find(c => c.deviceId == cam.deviceId);
 
     const toggleRecording = () => {
-        eventsService.dispatch({ action: !isRecording ? 'start' : 'stop' })
-        setIsRecording(!isRecording);
+        if (!isRecording)
+            startRecording();
+        else
+            stopRecording();
     }
+
+    const startRecording = () => {
+        setHasTimer(startDelay);
+        setTimeout(() => {
+            eventsService.dispatch({ action: 'start' })
+            setIsRecording(true);
+            setHasTimer(0);
+
+            if (endDelay)
+                stopRecording();
+        }, startDelay * 1000);
+    }
+
+    const stopRecording = () => {
+        setHasTimer(endDelay);
+        setTimeout(() => {
+            eventsService.dispatch({ action: 'stop' })
+            setIsRecording(false);
+            setHasTimer(0);
+        }, endDelay * 1000);
+    }
+
+    let delayInterval;
+    useEffect(() => {
+        if (hasTimer > 0)
+            delayInterval = setTimeout(() => setHasTimer(hasTimer - 1), 1000);
+
+    }, [hasTimer]);
 
     const hasModal = () => type === "intri" || type === "extri";
     const renderModal = () => {
@@ -54,9 +89,19 @@ function CalibrationRecord({ cameras, folder, type, status }) {
         } else {
             return (<>
                 {renderModal()}
-                <div className='mb-4'>
-                    <Button onClick={toggleRecording} type="primary">{isRecording ? 'Stop Recording' : 'Start Recording'}</Button>
+                <div className='mb-4 p-3 shadow-md bg-white rounded-md flex gap-4 items-center'>
+                    {hasTimer
+                        ? <>Recording {isRecording ? "ends" : "starts"} in {hasTimer} seconds</>
+                        : <Button onClick={toggleRecording} type="primary">{isRecording ? 'Stop Recording' : 'Start Recording'}</Button>
+                    }
                     {hasModal() ? <Button onClick={() => setShowHelp(true)}>Help</Button> : null}
+
+                    <div>
+                        Delay start: <InputNumber min={0} value={startDelay} onChange={(value) => setStartDelay(value)} />
+                    </div>
+                    <div>
+                        End in: <InputNumber min={0} value={endDelay} onChange={(value) => setEndDelay(value)} />
+                    </div>
                 </div>
                 <div className='grid grid-cols-2 gap-4'>
                     {filteredCams()?.map(cam => <CameraView key={cam._id} device={cam} options={cameraOptions(cam)} folder={folder} />)}

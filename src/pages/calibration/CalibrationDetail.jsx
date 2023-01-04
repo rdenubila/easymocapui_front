@@ -9,6 +9,7 @@ import CalibrationConversion from './CalibrationConversion';
 import CalibrationExtractImages from './CalibrationExtractImages';
 import CalibrationCalibrateCommands from './CalibrationCalibrateCommands';
 import CalibrationChessboardCommands from './CalibrationDetectChessboard';
+import CalibrationSelectImages from './CalibrationSelectImages';
 
 const { Step } = Steps;
 
@@ -50,8 +51,10 @@ function CalibrationDetail() {
             case 3:
                 return <CalibrationExtractImages status={data.status} id={id} />
             case 4:
-                return <CalibrationChessboardCommands status={data.status.intri.chessboard && data.status.extri.chessboard } id={id} />
+                return <CalibrationSelectImages />
             case 5:
+                return <CalibrationChessboardCommands status={data.status.intri.chessboard && data.status.extri.chessboard} id={id} />
+            case 6:
                 return <CalibrationCalibrateCommands status={data.status} id={id} />
             default:
                 return null;
@@ -67,6 +70,7 @@ function CalibrationDetail() {
                         <Step onStepClick={changeStep} title="Extrinsic Dataset" description="Record videos to generate Extrinsic data" />
                         <Step onStepClick={changeStep} title="Video conversion" description="Convert recorded videos to desired format" />
                         <Step onStepClick={changeStep} title="Extract images" description="Convert video to images to run conversion commands" />
+                        <Step onStepClick={changeStep} title="Select images" description="Select one image that show the chessboard for calibration" />
                         <Step onStepClick={changeStep} title="Detect chessboard" description="Detect chessboard from generated images" />
                         <Step onStepClick={changeStep} title="Calibration Files" description="Generate calibration files" />
                     </Steps>

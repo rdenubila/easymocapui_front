@@ -57,7 +57,7 @@ function StreamCamera() {
                 setIsRecording(false);
                 videoService.stopRecording();
                 setTimeout(async () => {
-                    await VideoService.saveVideoToServer(recordingData.folder, recordingData.deviceId, videoService.blob, recordingData.options);
+                    await VideoService.saveVideoToServer(recordingData.folder, recordingData._id, videoService.blob, recordingData.options);
                     videoService.discardRecording();
                 }, 1000);
                 break;

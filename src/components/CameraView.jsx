@@ -22,7 +22,7 @@ const LocalCamera = ({ device, options, folder }) => {
                 setIsRecording(false);
                 videoService.stopRecording();
                 setTimeout(async () => {
-                    await VideoService.saveVideoToServer(folder, device.deviceId, videoService.blob, options);
+                    await VideoService.saveVideoToServer(folder, device._id, videoService.blob, options);
                     videoService.discardRecording();
                     calibrationEvent.dispatch({ action: "reload" });
                 }, 1000);

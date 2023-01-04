@@ -5,8 +5,8 @@ import { removeDevice } from "../services/device";
 import EventsService from "../services/events";
 import { GlobalStateContext } from "../wrappers/GlobalContext";
 
-const DeviceCard = React.forwardRef(({ device }, ref) => {
-    const { peers} = useContext(GlobalStateContext);
+const DeviceCard = React.forwardRef(({ device, onEdit }, ref) => {
+    const { peers } = useContext(GlobalStateContext);
     const [connected, setConnected] = useState(false);
     const videoService = new VideoService();
     const eventService = new EventsService('updateDevices');
@@ -29,6 +29,9 @@ const DeviceCard = React.forwardRef(({ device }, ref) => {
 
     const menu = (
         <Menu>
+            <Menu.Item onClick={() => onEdit(device)}>
+                Edit
+            </Menu.Item>
             <Menu.Item danger onClick={deleteDevice}>
                 Delete
             </Menu.Item>

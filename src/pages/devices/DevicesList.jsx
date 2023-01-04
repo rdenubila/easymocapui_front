@@ -28,8 +28,9 @@ function DevicesList(props) {
         }
     }, [])
 
-
-
+    const editDevice = (device) => {
+        setIsModalVisible(device)
+    }
 
     return (<HeaderNavContent
         title="Devices"
@@ -38,7 +39,7 @@ function DevicesList(props) {
         ]}>
         <DeviceAddModal {...{ isModalVisible, setIsModalVisible }} />
 
-        {data?.map(device => <DeviceCard key={device._id} device={device} />)}
+        {data?.map(device => <DeviceCard key={device._id} device={device} onEdit={editDevice} />)}
 
     </HeaderNavContent>);
 }
