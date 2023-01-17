@@ -21,6 +21,14 @@ const removeAnimation = async (id) => {
     return await remove(endpoint, id);
 }
 
+const listAnimationImages = async (id) => {
+    return (await get(`${endpoint}/${id}/images`)).data;
+}
+
+const syncAnimationVideo = async (id, data) => {
+    return (await post(`${endpoint}/${id}/sync`, data)).data;
+}
+
 const extractAnimationVideo = async (id) => {
     return (await post(`${endpoint}/${id}/extract`)).data;
 }
@@ -42,6 +50,8 @@ export {
     listAnimation,
     removeAnimation,
     getAnimationDetail,
+    listAnimationImages,
+    syncAnimationVideo,
     extractAnimationVideo,
     smplReconstruction,
     bvhExport,

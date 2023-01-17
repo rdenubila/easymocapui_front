@@ -9,6 +9,7 @@ import AnimationConversion from './AnimationConversion';
 import AnimationExtractImages from './AnimationExtractImages';
 import AnimationSMPL from './AnimationSMPL';
 import AnimationBVH from './AnimationBVH';
+import AnimationSynchronize from './AnimationSynchronize';
 
 const { Step } = Steps;
 
@@ -45,8 +46,10 @@ function AnimationDetail() {
             case 2:
                 return <AnimationExtractImages status={data.status.images && data.status.openpose} id={id} />
             case 3:
-                return <AnimationSMPL status={data.status.smpl} id={id} />
+                return <AnimationSynchronize id={id} />
             case 4:
+                return <AnimationSMPL status={data.status.smpl} id={id} />
+            case 5:
                 return <AnimationBVH status={data.status.bvh} id={id} list={data.bvh} folder={data.folder} />
             default:
                 return null;
@@ -61,6 +64,7 @@ function AnimationDetail() {
                         <Step onStepClick={changeStep} title="Record videos" description="Record videos to generate animation" />
                         <Step onStepClick={changeStep} title="Video conversion" description="Convert recorded videos to desired format" />
                         <Step onStepClick={changeStep} title="Extract images" description="Convert video to images to run reconstruction commands" />
+                        <Step onStepClick={changeStep} title="Synchronize videos" description="Synchronize videos from images" />
                         <Step onStepClick={changeStep} title="SMPL Reconstruction" description="Reconstruct poses based in images" />
                         <Step onStepClick={changeStep} title="Export BVH" description="Reconstruct poses based in images" />
                     </Steps>
